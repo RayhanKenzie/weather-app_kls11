@@ -1,65 +1,93 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://unistyl.es/), etc.
+ * Weatherly design tokens.
+ * Colors are sampled from the exported brand assets in `assets/weatherly`.
  */
 
-import '@/global.css';
+export const colors = {
+  // Brand blue ramp
+  blue: "#2F8AE5",
+  blueLight: "#5EA9F2",
+  blueDeep: "#1F6FCB",
+  blueSoft: "#E8F1FC",
+  blueTint: "#F1F6FD",
 
-import { Platform } from 'react-native';
+  // Weather colors
+  sun: "#FFCC42",
+  sunDeep: "#F5B419",
+  cloud: "#E8F4FF",
+  cloudMid: "#C4DCF2",
+  cloudDeep: "#9EC3E4",
+  rain: "#5AA9F0",
+  snow: "#D9E9F7",
+  storm: "#8B7BE8",
 
-export const Colors = {
-  light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+  // Neutrals
+  background: "#F4F7FB",
+  card: "#FFFFFF",
+  text: "#172B43",
+  textSoft: "#5B7290",
+  textMuted: "#9AACC1",
+  border: "#E7EDF5",
+  field: "#EEF3F9",
+
+  white: "#FFFFFF",
+  black: "#0B1A2B",
+} as const;
+
+export const gradients = {
+  splash: ["#4BA3F0", "#2C7FDE", "#1F6FCB"],
+  hero: ["#3F96EC", "#2A7FDF", "#2069CE"],
+  primary: ["#4BA3F0", "#2A7FDF"],
+} as const;
+
+export const spacing = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  xxl: 24,
+  xxxl: 32,
+} as const;
+
+export const radius = {
+  sm: 10,
+  md: 14,
+  lg: 18,
+  xl: 24,
+  pill: 999,
+} as const;
+
+/** Type scale — the design uses a geometric sans with tight headings. */
+export const typography = {
+  display: { fontSize: 58, lineHeight: 64, fontWeight: "200" },
+  title: { fontSize: 26, lineHeight: 32, fontWeight: "700" },
+  heading: { fontSize: 19, lineHeight: 24, fontWeight: "700" },
+  subheading: { fontSize: 16, lineHeight: 22, fontWeight: "600" },
+  body: { fontSize: 14, lineHeight: 20, fontWeight: "500" },
+  small: { fontSize: 12, lineHeight: 16, fontWeight: "500" },
+  tiny: { fontSize: 10, lineHeight: 13, fontWeight: "600" },
+} as const;
+
+export const shadow = {
+  card: {
+    shadowColor: "#123A66",
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 4,
   },
-  dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+  soft: {
+    shadowColor: "#123A66",
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
   },
 } as const;
 
-export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
-
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
-    mono: 'var(--font-mono)',
-  },
-});
-
-export const Spacing = {
-  half: 2,
-  one: 4,
-  two: 8,
-  three: 16,
-  four: 24,
-  five: 32,
-  six: 64,
+/** Shared layout constants so every screen lines up with the design grid. */
+export const layout = {
+  gutter: 20,
+  maxWidth: 520,
 } as const;
-
-export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
-export const MaxContentWidth = 800;

@@ -1,98 +1,134 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { Animated, Easing, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { AmbientGlow, WeatherHero } from "@/components/WeatherIcon";
+import { AppText } from "@/components/ui";
+import { gradients } from "@/constants/theme";
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+/**
+ * 01 — Splash screen. Shows the brand for a short moment and then hands over
+ * to the home screen.
+ */
+export default function SplashScreenRoute() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const [scale] = useState(() => new Animated.Value(0.86));
+  const [opacity] = useState(() => new Animated.Value(0));
+  const [taglineOpacity] = useState(() => new Animated.Value(0));
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.spring(scale, {
+        toValue: 1,
+        friction: 7,
+        tension: 42,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 600,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    Animated.timing(taglineOpacity, {
+      toValue: 1,
+      duration: 600,
+      delay: 350,
+      easing: Easing.out(Easing.quad),
+      useNativeDriver: true,
+    }).start();
+  }, [opacity, scale, taglineOpacity]);
+
+  // Let the brand animation finish, then continue to the home screen.
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      router.replace("/(tabs)/home");
+    }, 1900);
+
+    return () => clearTimeout(timeout);
+  }, [router]);
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+    <LinearGradient colors={gradients.splash} style={styles.container}>
+      <View style={[styles.glowWrapper, { top: 120 }]} pointerEvents="none">
+        <AmbientGlow size={300} opacity={0.2} />
+      </View>
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+      <View style={styles.center}>
+        <Animated.View
+          style={[styles.illustration, { opacity, transform: [{ scale }] }]}
+        >
+          <WeatherHero size={148} />
+        </Animated.View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+        <Animated.View style={[styles.brand, { opacity }]}>
+          <AppText
+            variant="title"
+            weight="bold"
+            color="#FFFFFF"
+            style={styles.brandName}
+          >
+            Weatherly
+          </AppText>
+        </Animated.View>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+        <Animated.View style={{ opacity: taglineOpacity }}>
+          <AppText variant="small" color="rgba(255,255,255,0.85)" style={styles.tagline}>
+            Your day, forecasted beautifully
+          </AppText>
+        </Animated.View>
+      </View>
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+      <View style={[styles.homeIndicator, { bottom: insets.bottom + 12 }]}>
+        <View style={styles.homeIndicatorBar} />
+      </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
+    alignItems: "center",
+    justifyContent: "center",
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+  glowWrapper: {
+    position: "absolute",
+    alignSelf: "center",
   },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+  center: {
+    alignItems: "center",
+    marginTop: -40,
   },
-  title: {
-    textAlign: 'center',
+  illustration: {
+    marginBottom: 28,
   },
-  code: {
-    textTransform: 'uppercase',
+  brand: {
+    marginBottom: 8,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  brandName: {
+    fontSize: 30,
+    lineHeight: 38,
+    letterSpacing: 0.2,
+  },
+  tagline: {
+    letterSpacing: 0.2,
+  },
+  homeIndicator: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    alignItems: "center",
+  },
+  homeIndicatorBar: {
+    width: 76,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "rgba(255,255,255,0.75)",
   },
 });

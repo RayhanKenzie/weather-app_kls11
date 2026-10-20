@@ -1,56 +1,120 @@
-# Welcome to your Expo app 👋
+# Weatherly 🌤️
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+> **Your day, forecasted beautifully.**
 
-## Get started
+Aplikasi cuaca mobile untuk tugas kelompok kelas XI, dibangun dengan **Expo (React Native) + TypeScript**.
+Data cuaca diambil dari **Open-Meteo** (gratis, tanpa API key), dengan cadangan data offline agar
+aplikasi tetap bisa didemokan ketika jaringan tidak tersedia.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## Daftar layar
 
-2. Start the app
+| # | Layar | Rute | Fitur |
+|---|-------|------|--------|
+| 01 | Splash | `/` | Animasi logo, lalu otomatis ke beranda |
+| 02 | Home | `/(tabs)/home` | Cuaca saat ini, ringkasan (_feels like_, _sunrise_, _wind_), prakiraan per jam & 7 hari |
+| 03 | Hourly forecast | `/hourly` | 24 jam ke depan + grafik/list per jam |
+| 04 | 7-day forecast | `/daily` | Ringkasan mingguan (tertinggi/terendah) + detail tiap hari |
+| 05 | Search city | `/(tabs)/search` | Pencarian kota (geocoding) + kota populer |
+| 06 | Weather details | `/details` | UV index, kelembapan, angin, visibilitas, curah hujan, tekanan + grafik suhu |
+| 07 | My cities | `/(tabs)/cities` | Daftar kota tersimpan (maks. 8) dengan cuaca terkini |
+| 08 | Settings | `/(tabs)/settings` | Satuan °C/°F, notifikasi, bahasa, tampilan, tentang aplikasi |
 
-   ```bash
-   npx expo start
-   ```
+### Tanpa login
 
-In the output, you'll find options to open the app in a
+- Aplikasi **tidak butuh login**: layar splash langsung membuka ke beranda
+  (`/(tabs)/home`) tanpa meminta email atau kata sandi.
+- Tidak ada layar login maupun menu **Sign out** — semua fitur tersedia
+  langsung setelah aplikasi dibuka.
+- Data lokal (kota tersimpan & pengaturan) tetap disimpan di AsyncStorage.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Menjalankan aplikasi
 
 ```bash
-npm run reset-project
+# 1. install dependensi
+npm install
+
+# 2. jalankan development server
+npx expo start
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+Pindai QR code dengan aplikasi **Expo Go** (Android/iOS), atau tekan `w` untuk membuka di browser.
 
-### Other setup steps
+Perintah lain:
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+npx expo start --android   # buka di emulator Android
+npx expo start --ios       # buka di simulator iOS
+npx expo start --web       # pratinjau di browser
 
-## Learn more
+npm run lint               # eslint (src/ + scripts/)
+npm run typecheck          # tsc --noEmit
+npm run icons              # buat ulang icon aplikasi dari SVG
+npm run screenshots        # tangkap layar semua halaman (butuh Chrome)
+node scripts/test-api.js   # uji parsing data Open-Meteo (butuh dev server)
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+> Semua pustaka sudah memakai paket yang kompatibel dengan **Expo SDK 58**. Jika menambah
+> dependensi baru, selalu gunakan `npx expo install <paket>`.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## Struktur folder
 
-Join our community of developers creating universal apps.
+```
+src/
+├── app/                  # routing Expo Router
+│   ├── _layout.tsx       # root layout, provider, font
+│   ├── index.tsx         # (01) splash
+│   ├── hourly.tsx        # (03) hourly forecast
+│   ├── daily.tsx         # (04) 7-day forecast
+│   ├── details.tsx       # (06) weather details
+│   └── (tabs)/           # bottom tab navigation
+│       ├── _layout.tsx
+│       ├── home.tsx      # (02)
+│       ├── search.tsx    # (05)
+│       ├── cities.tsx    # (07)
+│       └── settings.tsx  # (08)
+├── components/           # komponen UI (ikon cuaca SVG, tab bar, chart, dll)
+├── constants/            # design token (warna, tipografi, spacing)
+├── hooks/                # pemuatan font
+├── lib/                  # model data, API Open-Meteo, format & helper
+└── providers/            # settings, kota tersimpan, data cuaca
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+## API yang dipakai
+
+| Endpoint | Kegunaan |
+|----------|----------|
+| `https://api.open-meteo.com/v1/forecast` | Cuaca saat ini, per jam, dan 7 hari |
+| `https://geocoding-api.open-meteo.com/v1/search` | Pencarian nama kota |
+
+Dokumentasi: [Open-Meteo](https://open-meteo.com/en/docs).
+
+Jika request gagal (tidak ada internet / DNS diblokir), `src/lib/mock.ts` akan membuat data
+cuaca yang masuk akal dari koordinat kota sehingga seluruh halaman tetap tampil.
+
+---
+
+## Catatan untuk kelompok
+
+- Semua ikon cuaca digambar dengan **SVG** (`src/components/WeatherIcon.tsx`) supaya tajam di
+  semua ukuran layar dan tidak perlu file gambar tambahan.
+- Warna aplikasi diambil dari aset desain di `assets/weatherly/` (lihat `src/constants/theme.ts`).
+- Icon aplikasi dibuat dari `scripts/assets/weatherly-mark.svg` melalui `npm run icons`.
+- State disimpan di **AsyncStorage**: daftar kota tersimpan dan pengaturan pengguna.
+
+---
+
+## Verifikasi (opsional)
+
+Sudah diuji otomatis dengan Chrome headless (butuh `npx expo start --web` aktif):
+
+- `npm run screenshots` → menyimpan tangkapan layar ke `.screenshots/`
+- `node scripts/test-api.js` → memalsukan respons Open-Meteo dan memastikan angka yang
+  tampil di layar benar (suhu, kondisi, sunrise/sunset, kelembapan, tekanan).
