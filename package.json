@@ -50,5 +50,17 @@
     "icons": "node scripts/generate-icons.js",
     "screenshots": "node scripts/screenshots.js"
   },
-  "private": true
+  "private": true,
+  "description": "> **Your day, forecasted beautifully.**",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RayhanKenzie/weather-app_kls11.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RayhanKenzie/weather-app_kls11/issues"
+  },
+  "homepage": "https://github.com/RayhanKenzie/weather-app_kls11#readme"
 }
