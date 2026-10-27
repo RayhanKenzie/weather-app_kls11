@@ -11,7 +11,7 @@ import { AmbientGlow, WeatherHero } from "@/components/WeatherIcon";
 import { colors, gradients, radius, shadow, spacing } from "@/constants/theme";
 import { formatTemperature } from "@/lib/format";
 import { useCities } from "@/providers/CitiesProvider";
-import { useSettings } from "@/providers/SettingsProvider";
+import { useAppColors, useSettings } from "@/providers/SettingsProvider";
 import { useWeather } from "@/providers/WeatherProvider";
 import { describeWeather } from "@/lib/wmo";
 
@@ -24,6 +24,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { selectedCity } = useCities();
   const { settings } = useSettings();
+  const palette = useAppColors();
   const { bundle, loading, refreshing, refresh } = useWeather();
 
   const current = bundle?.current;
@@ -35,7 +36,7 @@ export default function HomeScreen() {
   const minTemperature = bundle?.daily.reduce((min, day) => Math.min(min, day.minTemperature), 99) ?? 0;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: palette.background }]}>
       <LinearGradient colors={gradients.hero} style={styles.hero}>
         <View style={styles.glow} pointerEvents="none">
           <AmbientGlow size={260} opacity={0.16} />
@@ -106,7 +107,7 @@ export default function HomeScreen() {
           />
         }
       >
-        <View style={styles.handle} />
+        <View style={[styles.handle, { backgroundColor: palette.border }]} />
 
         <SectionHeader
           title="Today"
@@ -126,18 +127,18 @@ export default function HomeScreen() {
           onAction={() => router.push("/daily")}
           style={styles.section}
         />
-        <View style={styles.dailyCard}>
+        <View style={[styles.dailyCard, { backgroundColor: palette.card }]}>
           {bundle?.daily.slice(0, 3).map((day, index) => (
             <DailyRow key={day.date} day={day} index={index} unit={unit} showDescription={false} />
           ))}
         </View>
 
         <Pressable
-          style={styles.detailsCard}
+          style={[styles.detailsCard, { backgroundColor: palette.card }]}
           onPress={() => router.push("/details")}
           accessibilityRole="button"
         >
-          <View style={styles.detailsIcon}>
+          <View style={[styles.detailsIcon, { backgroundColor: palette.blueTint }]}>
             <Ionicons name="speedometer-outline" size={20} color={colors.blue} />
           </View>
           <View style={styles.detailsText}>

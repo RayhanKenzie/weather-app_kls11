@@ -4,22 +4,6 @@
 
 import type { SpeedUnit, TemperatureUnit } from "./types";
 
-const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-
 export function convertTemperature(value: number, unit: TemperatureUnit): number {
   return unit === "f" ? Math.round((value * 9) / 5 + 32) : Math.round(value);
 }
@@ -60,21 +44,31 @@ export function formatHourLabel(value: string, index: number): string {
   return index === 0 ? "Now" : formatHour(value);
 }
 
-export function formatDayName(date: string, index: number): string {
+export function formatDayName(date: string, index: number, language = "English"): string {
   if (index === 0) return "Today";
   const parsed = parseIso(date);
-  return WEEKDAYS[parsed.getUTCDay()];
+  return parsed.toLocaleDateString(language === "English" ? "en-US" : "id-ID", {
+    weekday: "long",
+    timeZone: "UTC",
+  });
 }
 
-export function formatShortDay(date: string, index: number): string {
+export function formatShortDay(date: string, index: number, language = "English"): string {
   if (index === 0) return "Today";
   const parsed = parseIso(date);
-  return WEEKDAYS[parsed.getUTCDay()].slice(0, 3);
+  return parsed.toLocaleDateString(language === "English" ? "en-US" : "id-ID", {
+    weekday: "short",
+    timeZone: "UTC",
+  });
 }
 
-export function formatDate(date: string): string {
+export function formatDate(date: string, language = "English"): string {
   const parsed = parseIso(date);
-  return `${MONTHS[parsed.getUTCMonth()]} ${parsed.getUTCDate()}`;
+  return parsed.toLocaleDateString(language === "English" ? "en-US" : "id-ID", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
 }
 
 export function formatUpdatedAt(iso: string): string {

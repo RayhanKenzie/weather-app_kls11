@@ -12,7 +12,7 @@ import type { CurrentWeather } from "@/lib/types";
 import { describeWeather } from "@/lib/wmo";
 import { fetchCurrentOnly } from "@/lib/weather";
 import { MAX_SAVED_CITIES, useCities } from "@/providers/CitiesProvider";
-import { useSettings } from "@/providers/SettingsProvider";
+import { useAppColors, useSettings } from "@/providers/SettingsProvider";
 
 /**
  * 07 — My cities. The saved city list with live conditions.
@@ -22,6 +22,7 @@ export default function MyCitiesScreen() {
   const insets = useSafeAreaInsets();
   const { cities, selectedCity, selectCity, removeCity } = useCities();
   const { settings } = useSettings();
+  const palette = useAppColors();
   const unit = settings.temperatureUnit;
 
   const [conditions, setConditions] = useState<Record<string, CurrentWeather>>({});
@@ -51,7 +52,7 @@ export default function MyCitiesScreen() {
   }, [cities]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: palette.background }]}>
       <ScreenHeader
         title="My cities"
         style={{ paddingTop: insets.top + spacing.sm }}
@@ -68,7 +69,7 @@ export default function MyCitiesScreen() {
       >
         {cities.length === 0 ? (
           <View style={styles.empty}>
-            <View style={styles.emptyIcon}>
+            <View style={[styles.emptyIcon, { backgroundColor: palette.blueTint }]}>
               <Ionicons name="map-outline" size={26} color={colors.blue} />
             </View>
             <AppText variant="subheading" weight="semibold">
@@ -79,7 +80,7 @@ export default function MyCitiesScreen() {
             </AppText>
           </View>
         ) : (
-          <View style={styles.listCard}>
+          <View style={[styles.listCard, { backgroundColor: palette.card }]}>
             {cities.map((city, index) => {
               const current = conditions[city.id];
               const descriptor = describeWeather(current?.weatherCode);
@@ -97,7 +98,7 @@ export default function MyCitiesScreen() {
                   accessibilityLabel={`${city.name}, ${city.country}`}
                   style={({ pressed }) => [
                     styles.row,
-                    index !== cities.length - 1 && styles.rowBorder,
+                    index !== cities.length - 1 && [styles.rowBorder, { borderBottomColor: palette.border }],
                     pressed && styles.pressed,
                   ]}
                 >
@@ -130,7 +131,7 @@ export default function MyCitiesScreen() {
                     ) : null}
                   </View>
 
-                  <Ionicons name="chevron-forward" size={17} color={colors.textMuted} style={styles.chevron} />
+                  <Ionicons name="chevron-forward" size={17} color={palette.textMuted} style={styles.chevron} />
                 </Pressable>
               );
             })}

@@ -1,16 +1,17 @@
 import { Tabs } from "expo-router/js-tabs";
 
 import { TabBar } from "@/components/TabBar";
-import { colors } from "@/constants/theme";
+import { useAppColors } from "@/providers/SettingsProvider";
 
 export default function TabsLayout() {
+  const palette = useAppColors();
   return (
     <Tabs
       tabBar={(props) => <TabBar {...props} />}
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
-        sceneStyle: { backgroundColor: colors.background },
+        sceneStyle: { backgroundColor: palette.background },
       }}
     >
       <Tabs.Screen name="home" options={{ title: "Home" }} />

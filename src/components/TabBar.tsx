@@ -4,6 +4,8 @@ import type { BottomTabBarProps } from "expo-router/js-tabs";
 
 import { AppText } from "@/components/ui";
 import { colors, radius, shadow } from "@/constants/theme";
+import { translateText } from "@/lib/i18n";
+import { useAppColors, useSettings } from "@/providers/SettingsProvider";
 
 const ICONS: Record<
   string,
@@ -20,19 +22,23 @@ const ICONS: Record<
  * above the home indicator.
  */
 export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: BottomTabBarProps) {
+  const palette = useAppColors();
+  const { settings } = useSettings();
   return (
     <View
       style={[styles.wrapper, { paddingBottom: Math.max(insets.bottom, 10) }]}
       pointerEvents="box-none"
     >
-      <View style={styles.bar}>
+      <View style={[styles.bar, { backgroundColor: palette.card }]}>
         {state.routes.map((route, index) => {
           const focused = state.index === index;
           const { options } = descriptors[route.key];
-          const label =
+          const label = translateText(
             typeof options.tabBarLabel === "string"
               ? options.tabBarLabel
-              : (options.title ?? route.name);
+              : (options.title ?? route.name),
+            settings.language
+          );
           const iconSet = ICONS[route.name] ?? ICONS.home;
 
           const onPress = () => {
@@ -55,17 +61,22 @@ export function TabBar({ state, descriptors, emitter, navigateToTab, insets }: B
               accessibilityLabel={label}
               style={({ pressed }) => [styles.item, pressed && styles.pressed]}
             >
-              <View style={[styles.iconWrap, focused && styles.iconWrapActive]}>
+              <View
+                style={[
+                  styles.iconWrap,
+                  focused && [styles.iconWrapActive, { backgroundColor: palette.blueTint }],
+                ]}
+              >
                 <Ionicons
                   name={focused ? iconSet.active : iconSet.inactive}
                   size={20}
-                  color={focused ? colors.blue : colors.textMuted}
+                  color={focused ? palette.blue : palette.textMuted}
                 />
               </View>
               <AppText
                 variant="tiny"
                 weight={focused ? "semibold" : "medium"}
-                color={focused ? colors.blue : colors.textMuted}
+                color={focused ? palette.blue : palette.textMuted}
               >
                 {label}
               </AppText>

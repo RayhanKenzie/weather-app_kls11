@@ -8,7 +8,7 @@ import { WeatherIcon } from "@/components/WeatherIcon";
 import { colors, radius, shadow, spacing } from "@/constants/theme";
 import { formatDate, formatHour, formatTemperature } from "@/lib/format";
 import { useCities } from "@/providers/CitiesProvider";
-import { useSettings } from "@/providers/SettingsProvider";
+import { useAppColors, useSettings } from "@/providers/SettingsProvider";
 import { useWeather } from "@/providers/WeatherProvider";
 import { describeWeather } from "@/lib/wmo";
 
@@ -20,6 +20,7 @@ export default function HourlyForecastScreen() {
   const insets = useSafeAreaInsets();
   const { selectedCity } = useCities();
   const { settings } = useSettings();
+  const palette = useAppColors();
   const { bundle } = useWeather();
   const unit = settings.temperatureUnit;
 
@@ -27,7 +28,7 @@ export default function HourlyForecastScreen() {
   const first = hours[0];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: palette.background }]}>
       <ScreenHeader
         title="Hourly forecast"
         onBack={() => router.back()}
@@ -42,27 +43,27 @@ export default function HourlyForecastScreen() {
           <View>
             <AppText variant="title">{selectedCity.name}</AppText>
             <AppText variant="small" color={colors.textMuted}>
-              {first ? formatDate(first.time) : "Today"}
+              {first ? formatDate(first.time, settings.language) : "Today"}
             </AppText>
           </View>
-          <View style={styles.badge}>
+          <View style={[styles.badge, { backgroundColor: palette.blueTint }]}>
             <AppText variant="tiny" weight="semibold" color={colors.blue}>
               NEXT 24H
             </AppText>
           </View>
         </View>
 
-        <View style={styles.stripCard}>
+        <View style={[styles.stripCard, { backgroundColor: palette.card }]}>
           <HourlyStrip hours={hours.slice(0, 12)} unit={unit} />
         </View>
 
-        <View style={styles.listCard}>
+        <View style={[styles.listCard, { backgroundColor: palette.card }]}>
           {hours.map((hour, index) => {
             const descriptor = describeWeather(hour.weatherCode);
             return (
               <View
                 key={hour.time}
-                style={[styles.row, index !== hours.length - 1 && styles.rowBorder]}
+                style={[styles.row, index !== hours.length - 1 && [styles.rowBorder, { borderBottomColor: palette.border }] ]}
               >
                 <AppText variant="subheading" weight="semibold" style={styles.time}>
                   {index === 0 ? "Now" : formatHour(hour.time)}

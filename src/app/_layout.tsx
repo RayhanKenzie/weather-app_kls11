@@ -6,10 +6,9 @@ import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import { colors } from "@/constants/theme";
 import { useAppFonts } from "@/hooks/useAppFonts";
 import { CitiesProvider } from "@/providers/CitiesProvider";
-import { SettingsProvider } from "@/providers/SettingsProvider";
+import { SettingsProvider, useSettings } from "@/providers/SettingsProvider";
 import { WeatherProvider } from "@/providers/WeatherProvider";
 
 SplashScreen.preventAutoHideAsync();
@@ -31,25 +30,35 @@ export default function RootLayout() {
         <SettingsProvider>
           <CitiesProvider>
             <WeatherProvider>
-              <StatusBar style="auto" />
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: colors.background },
-                  animation: "slide_from_right",
-                }}
-              >
-                <Stack.Screen name="index" options={{ animation: "fade" }} />
-                <Stack.Screen name="(tabs)" options={{ animation: "fade" }} />
-                <Stack.Screen name="hourly" />
-                <Stack.Screen name="daily" />
-                <Stack.Screen name="details" />
-              </Stack>
+              <AppNavigator />
             </WeatherProvider>
           </CitiesProvider>
         </SettingsProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
+  );
+}
+
+function AppNavigator() {
+  const { settings, colors: palette } = useSettings();
+
+  return (
+    <>
+      <StatusBar style={settings.appearance === "dark" ? "light" : "dark"} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: palette.background },
+          animation: "slide_from_right",
+        }}
+      >
+        <Stack.Screen name="index" options={{ animation: "fade" }} />
+        <Stack.Screen name="(tabs)" options={{ animation: "fade" }} />
+        <Stack.Screen name="hourly" />
+        <Stack.Screen name="daily" />
+        <Stack.Screen name="details" />
+      </Stack>
+    </>
   );
 }
 

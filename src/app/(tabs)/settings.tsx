@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppText, ScreenHeader, SettingRow } from "@/components/ui";
 import { colors, radius, shadow, spacing } from "@/constants/theme";
-import { useSettings } from "@/providers/SettingsProvider";
+import { useAppColors, useSettings } from "@/providers/SettingsProvider";
 
 /**
  * 08 — Settings: preferences and app information.
@@ -14,6 +14,7 @@ export default function SettingsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { settings, update } = useSettings();
+  const palette = useAppColors();
 
   const displayName = "Weatherly";
   const displayTagline = "Your day, forecasted beautifully";
@@ -27,20 +28,18 @@ export default function SettingsScreen() {
   };
 
   const cycleAppearance = () => {
-    // The palette is designed for a light surface, so "System" and "Light"
-    // currently render the same theme.
-    update("appearance", settings.appearance === "light" ? "system" : "light");
+    update("appearance", settings.appearance === "dark" ? "light" : "dark");
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: palette.background }]}>
       <ScreenHeader title="Settings" style={{ paddingTop: insets.top + spacing.sm }} />
 
       <ScrollView
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 110 }]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.profileCard}>
+        <View style={[styles.profileCard, { backgroundColor: palette.card }]}>
           <View style={styles.avatar}>
             <AppText variant="title" weight="bold" color={colors.white}>
               {displayName.slice(0, 1).toUpperCase()}
@@ -52,8 +51,8 @@ export default function SettingsScreen() {
               {displayTagline}
             </AppText>
           </View>
-          <View style={styles.editButton}>
-            <Ionicons name="partly-sunny" size={18} color={colors.blue} />
+          <View style={[styles.editButton, { backgroundColor: palette.blueTint }]}>
+            <Ionicons name="partly-sunny" size={18} color={palette.blue} />
           </View>
         </View>
 
@@ -61,13 +60,13 @@ export default function SettingsScreen() {
           PREFERENCES
         </AppText>
 
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: palette.card }]}>
           <SettingRow
             icon="thermometer-outline"
             title="Temperature unit"
             subtitle={`Temperatures in ${settings.temperatureUnit === "c" ? "Celsius" : "Fahrenheit"}`}
             right={
-              <View style={styles.unitSwitch}>
+              <View style={[styles.unitSwitch, { backgroundColor: palette.field }]}>
                 {(["c", "f"] as const).map((unit) => (
                   <Pressable
                     key={unit}
@@ -106,8 +105,8 @@ export default function SettingsScreen() {
               <Switch
                 value={settings.notifications}
                 onValueChange={(value) => update("notifications", value)}
-                trackColor={{ false: colors.border, true: colors.blueLight }}
-                thumbColor={settings.notifications ? colors.blue : colors.white}
+                trackColor={{ false: palette.border, true: palette.blueLight }}
+                thumbColor={settings.notifications ? palette.blue : colors.white}
                 accessibilityLabel="Toggle notifications"
               />
             }
@@ -128,7 +127,7 @@ export default function SettingsScreen() {
             onPress={cycleAppearance}
             right={
               <AppText variant="small" weight="semibold" color={colors.blue}>
-                {settings.appearance === "light" ? "Light mode" : "System"}
+                {settings.appearance === "dark" ? "Dark mode" : "Light mode"}
               </AppText>
             }
             last
@@ -139,7 +138,7 @@ export default function SettingsScreen() {
           ABOUT
         </AppText>
 
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: palette.card }]}>
           <SettingRow
             icon="information-circle-outline"
             title="About Weatherly"
@@ -151,7 +150,7 @@ export default function SettingsScreen() {
             title="Data source"
             subtitle="Open-Meteo · free & open API"
             right={
-              <View style={styles.liveBadge}>
+              <View style={[styles.liveBadge, { backgroundColor: palette.blueTint }]}>
                 <View style={styles.liveDot} />
                 <AppText variant="tiny" weight="semibold" color={colors.blue}>
                   LIVE
@@ -162,7 +161,7 @@ export default function SettingsScreen() {
           />
         </View>
 
-        <View style={styles.infoCard}>
+        <View style={[styles.infoCard, { backgroundColor: palette.card }]}>
           <View style={styles.infoHeader}>
             <View style={styles.infoIcon}>
               <Ionicons name="bulb-outline" size={18} color={colors.sun} />

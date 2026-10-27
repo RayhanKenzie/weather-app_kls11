@@ -7,7 +7,7 @@ import { AppText, ScreenHeader } from "@/components/ui";
 import { colors, radius, shadow, spacing } from "@/constants/theme";
 import { formatTemperature } from "@/lib/format";
 import { useCities } from "@/providers/CitiesProvider";
-import { useSettings } from "@/providers/SettingsProvider";
+import { useAppColors, useSettings } from "@/providers/SettingsProvider";
 import { useWeather } from "@/providers/WeatherProvider";
 
 /**
@@ -18,6 +18,7 @@ export default function DailyForecastScreen() {
   const insets = useSafeAreaInsets();
   const { selectedCity } = useCities();
   const { settings } = useSettings();
+  const palette = useAppColors();
   const { bundle } = useWeather();
   const unit = settings.temperatureUnit;
 
@@ -26,7 +27,7 @@ export default function DailyForecastScreen() {
   const coldest = days.reduce((min, day) => Math.min(min, day.minTemperature), 99);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: palette.background }]}>
       <ScreenHeader
         title="7-day forecast"
         onBack={() => router.back()}
@@ -46,21 +47,21 @@ export default function DailyForecastScreen() {
           </View>
         </View>
 
-        <View style={styles.summaryCard}>
+        <View style={[styles.summaryCard, { backgroundColor: palette.card }]}>
           <Summary label="Highest" value={formatTemperature(warmest, unit)} />
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: palette.border }]} />
           <Summary label="Lowest" value={formatTemperature(coldest, unit)} />
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: palette.border }]} />
           <Summary label="Days" value={`${days.length}`} />
         </View>
 
-        <View style={styles.listCard}>
+        <View style={[styles.listCard, { backgroundColor: palette.card }]}>
           {days.map((day, index) => (
             <DailyRow key={day.date} day={day} index={index} unit={unit} />
           ))}
         </View>
 
-        <View style={styles.tipCard}>
+        <View style={[styles.tipCard, { backgroundColor: palette.blueTint }]}>
           <AppText variant="small" weight="semibold" color={colors.text}>
             Planning a trip?
           </AppText>

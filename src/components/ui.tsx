@@ -1,4 +1,4 @@
-import { memo, type ReactNode } from "react";
+import { Children, memo, type ReactNode } from "react";
 import {
   Pressable,
   StyleSheet,
@@ -13,6 +13,8 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { fontFamily } from "@/constants/fonts";
 import { colors, radius, shadow, spacing, typography } from "@/constants/theme";
+import { translateText } from "@/lib/i18n";
+import { useSettings } from "@/providers/SettingsProvider";
 
 type TextVariant = keyof typeof typography;
 
@@ -32,7 +34,16 @@ export const AppText = memo(function AppText({
   children,
   ...rest
 }: AppTextProps) {
+  const { settings, colors: palette } = useSettings();
   const base = typography[variant] as TextStyle;
+  const resolvedColor =
+    color === undefined || color === colors.text
+      ? palette.text
+      : color === colors.textMuted
+        ? palette.textMuted
+        : color === colors.textSoft
+          ? palette.textSoft
+          : color;
   return (
     <Text
       {...rest}
@@ -40,12 +51,14 @@ export const AppText = memo(function AppText({
         base,
         {
           fontFamily: fontFamily[weight ?? (base.fontWeight as keyof typeof fontFamily) ?? "regular"],
-          color,
+          color: resolvedColor,
         },
         style,
       ]}
     >
-      {children}
+        {Children.map(children, (child) =>
+          typeof child === "string" ? translateText(child, settings.language) : child
+        )}
     </Text>
   );
 });
@@ -59,9 +72,8 @@ export function Card({
   style?: StyleProp<ViewStyle>;
   padded?: boolean;
 }) {
-  return (
-    <View style={[styles.card, padded && styles.cardPadded, style]}>{children}</View>
-  );
+  const { colors: palette } = useSettings();
+  return <View style={[styles.card, { backgroundColor: palette.card }, padded && styles.cardPadded, style]}>{children}</View>;
 }
 
 export function SectionHeader({
@@ -102,6 +114,7 @@ export function ScreenHeader({
   right?: ReactNode;
   style?: StyleProp<ViewStyle>;
 }) {
+  const { colors: palette } = useSettings();
   return (
     <View style={[styles.screenHeader, style]}>
       {onBack ? (
@@ -112,7 +125,7 @@ export function ScreenHeader({
           accessibilityLabel="Go back"
           style={styles.backButton}
         >
-          <Ionicons name="chevron-back" size={22} color={colors.text} />
+          <Ionicons name="chevron-back" size={22} color={palette.text} />
         </Pressable>
       ) : (
         <View style={styles.backButton} />
@@ -145,6 +158,7 @@ export function Chip({
   onPress?: () => void;
   icon?: keyof typeof Ionicons.glyphMap;
 }) {
+  const { colors: palette } = useSettings();
   return (
     <Pressable
       onPress={onPress}
@@ -152,7 +166,7 @@ export function Chip({
       accessibilityState={{ selected }}
       style={({ pressed }) => [
         styles.chip,
-        selected ? styles.chipSelected : styles.chipIdle,
+        selected ? styles.chipSelected : [styles.chipIdle, { backgroundColor: palette.field }],
         pressed && styles.pressed,
       ]}
     >
@@ -192,6 +206,9 @@ export function IconButton({
   iconSize?: number;
   style?: StyleProp<ViewStyle>;
 }) {
+  const { colors: palette } = useSettings();
+  const resolvedColor = color === colors.text ? palette.text : color;
+  const resolvedBackground = background === colors.white ? palette.card : background;
   return (
     <Pressable
       onPress={onPress}
@@ -202,13 +219,13 @@ export function IconButton({
           width: size,
           height: size,
           borderRadius: size / 2,
-          backgroundColor: background,
+          backgroundColor: resolvedBackground,
         },
         pressed && styles.pressed,
         style,
       ]}
     >
-      <Ionicons name={name} size={iconSize} color={color} />
+      <Ionicons name={name} size={iconSize} color={resolvedColor} />
     </Pressable>
   );
 }
@@ -230,8 +247,9 @@ export function SettingRow({
   onPress?: () => void;
   last?: boolean;
 }) {
+  const { colors: palette } = useSettings();
   const content = (
-    <View style={[styles.settingRow, !last && styles.settingRowBorder]}>
+    <View style={[styles.settingRow, !last && [styles.settingRowBorder, { borderBottomColor: palette.border }]]}>
       {icon ? (
         <View style={[styles.settingIcon, { backgroundColor: `${iconColor}18` }]}>
           <Ionicons name={icon} size={18} color={iconColor} />
@@ -245,7 +263,7 @@ export function SettingRow({
           </AppText>
         ) : null}
       </View>
-      {right ?? <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />}
+      {right ?? <Ionicons name="chevron-forward" size={18} color={palette.textMuted} />}
     </View>
   );
 
@@ -262,7 +280,8 @@ export function SettingRow({
 }
 
 export function Divider({ style }: { style?: StyleProp<ViewStyle> }) {
-  return <View style={[styles.divider, style]} />;
+  const { colors: palette } = useSettings();
+  return <View style={[styles.divider, { backgroundColor: palette.border }, style]} />;
 }
 
 const styles = StyleSheet.create({

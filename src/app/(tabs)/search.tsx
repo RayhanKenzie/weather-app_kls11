@@ -14,8 +14,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText, Chip, ScreenHeader } from "@/components/ui";
 import { colors, radius, shadow, spacing } from "@/constants/theme";
 import { ALL_CITIES, POPULAR_CITIES, searchCities } from "@/lib/cities";
+import { translateText } from "@/lib/i18n";
 import type { City } from "@/lib/types";
 import { useCities } from "@/providers/CitiesProvider";
+import { useAppColors, useSettings } from "@/providers/SettingsProvider";
 
 /**
  * 05 — Search city. Lets the user find a city and add it to "My cities".
@@ -24,6 +26,8 @@ export default function SearchCityScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { addCity, isSaved, selectCity } = useCities();
+  const { settings } = useSettings();
+  const palette = useAppColors();
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<City[]>(ALL_CITIES);
@@ -58,28 +62,28 @@ export default function SearchCityScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: palette.background }]}>
       <ScreenHeader
         title="Search city"
         onBack={() => (router.canGoBack() ? router.back() : router.push("/(tabs)/home"))}
         style={{ paddingTop: insets.top + spacing.sm }}
       />
 
-      <View style={styles.searchBar}>
-        <Ionicons name="search" size={18} color={colors.textMuted} />
+      <View style={[styles.searchBar, { backgroundColor: palette.field }]}>
+        <Ionicons name="search" size={18} color={palette.textMuted} />
         <TextInput
           value={query}
           onChangeText={setQuery}
-          placeholder="Search for a city…"
-          placeholderTextColor={colors.textMuted}
-          style={styles.input}
+          placeholder={translateText("Search for a city…", settings.language)}
+          placeholderTextColor={palette.textMuted}
+          style={[styles.input, { color: palette.text }]}
           autoCapitalize="words"
           autoCorrect={false}
           returnKeyType="search"
           clearButtonMode="while-editing"
-          accessibilityLabel="Search for a city"
+          accessibilityLabel={translateText("Search for a city", settings.language)}
         />
-        {searching ? <ActivityIndicator size="small" color={colors.blue} /> : null}
+        {searching ? <ActivityIndicator size="small" color={palette.blue} /> : null}
       </View>
 
       <ScrollView
@@ -112,7 +116,7 @@ export default function SearchCityScreen() {
           {query.trim().length > 0 ? "Search results" : "All cities"}
         </AppText>
 
-        <View style={styles.listCard}>
+        <View style={[styles.listCard, { backgroundColor: palette.card }]}>
           {results.length === 0 ? (
             <View style={styles.empty}>
               <Ionicons name="cloud-offline-outline" size={26} color={colors.textMuted} />
@@ -129,11 +133,11 @@ export default function SearchCityScreen() {
                 accessibilityLabel={`Add ${city.name}, ${city.country}`}
                 style={({ pressed }) => [
                   styles.cityRow,
-                  index !== results.length - 1 && styles.cityRowBorder,
+                  index !== results.length - 1 && [styles.cityRowBorder, { borderBottomColor: palette.border }],
                   pressed && styles.pressed,
                 ]}
               >
-                <View style={styles.cityIcon}>
+                <View style={[styles.cityIcon, { backgroundColor: palette.blueTint }]}>
                   <Ionicons name="location-outline" size={16} color={colors.blue} />
                 </View>
                 <View style={styles.cityText}>
@@ -145,7 +149,7 @@ export default function SearchCityScreen() {
                   </AppText>
                 </View>
                 {isSaved(city.id) ? (
-                  <View style={styles.savedBadge}>
+                  <View style={[styles.savedBadge, { backgroundColor: palette.blueTint }]}>
                     <Ionicons name="checkmark" size={13} color={colors.blue} />
                     <AppText variant="tiny" weight="semibold" color={colors.blue}>
                       Saved

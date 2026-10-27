@@ -7,6 +7,7 @@ import { colors, spacing } from "@/constants/theme";
 import { formatDayName, formatTemperature } from "@/lib/format";
 import type { DailyWeather, TemperatureUnit } from "@/lib/types";
 import { describeWeather } from "@/lib/wmo";
+import { useSettings } from "@/providers/SettingsProvider";
 
 export const DailyRow = memo(function DailyRow({
   day,
@@ -21,13 +22,14 @@ export const DailyRow = memo(function DailyRow({
   onPress?: () => void;
   showDescription?: boolean;
 }) {
+  const { settings } = useSettings();
   const descriptor = describeWeather(day.weatherCode);
 
   const content = (
     <View style={styles.row}>
       <View style={styles.day}>
         <AppText variant="subheading" weight="semibold" numberOfLines={1}>
-          {formatDayName(day.date, index)}
+          {formatDayName(day.date, index, settings.language)}
         </AppText>
         {showDescription ? (
           <AppText variant="tiny" color={colors.textMuted} style={styles.description}>

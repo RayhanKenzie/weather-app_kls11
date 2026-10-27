@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import type { SpeedUnit, TemperatureUnit } from "@/lib/types";
+import { getThemeColors, type ThemeColors } from "@/constants/theme";
 
 export type Appearance = "light" | "dark" | "system";
 
@@ -33,6 +34,7 @@ const STORAGE_KEY = "weatherly.settings.v1";
 
 interface SettingsContextValue {
   settings: Settings;
+  colors: ThemeColors;
   ready: boolean;
   update: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
   reset: () => void;
@@ -77,7 +79,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<SettingsContextValue>(
-    () => ({ settings, ready, update, reset }),
+    () => ({
+      settings,
+      colors: getThemeColors(settings.appearance === "dark"),
+      ready,
+      update,
+      reset,
+    }),
     [settings, ready, update, reset]
   );
 
@@ -88,4 +96,8 @@ export function useSettings(): SettingsContextValue {
   const context = useContext(SettingsContext);
   if (!context) throw new Error("useSettings must be used inside <SettingsProvider>");
   return context;
+}
+
+export function useAppColors(): ThemeColors {
+  return useSettings().colors;
 }

@@ -34,6 +34,26 @@ export const colors = {
   black: "#0B1A2B",
 } as const;
 
+export type ThemeColors = { [K in keyof typeof colors]: string };
+
+const darkColors: ThemeColors = {
+  ...colors,
+  blueSoft: "#203A54",
+  blueTint: "#1C3044",
+  background: "#111A24",
+  card: "#1B2937",
+  text: "#F2F6FA",
+  textSoft: "#B3C1CF",
+  textMuted: "#8799AA",
+  border: "#304152",
+  field: "#243443",
+  black: "#F2F6FA",
+};
+
+export function getThemeColors(dark: boolean): ThemeColors {
+  return dark ? darkColors : colors;
+}
+
 export const gradients = {
   splash: ["#4BA3F0", "#2C7FDE", "#1F6FCB"],
   hero: ["#3F96EC", "#2A7FDF", "#2069CE"],

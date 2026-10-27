@@ -21,7 +21,7 @@ import {
   windLabel,
 } from "@/lib/format";
 import { useCities } from "@/providers/CitiesProvider";
-import { useSettings } from "@/providers/SettingsProvider";
+import { useAppColors, useSettings } from "@/providers/SettingsProvider";
 import { useWeather } from "@/providers/WeatherProvider";
 import { describeWeather } from "@/lib/wmo";
 
@@ -34,6 +34,7 @@ export default function WeatherDetailsScreen() {
   const { width } = useWindowDimensions();
   const { selectedCity } = useCities();
   const { settings } = useSettings();
+  const palette = useAppColors();
   const { bundle } = useWeather();
   const unit = settings.temperatureUnit;
 
@@ -97,7 +98,7 @@ export default function WeatherDetailsScreen() {
   ];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: palette.background }]}>
       <ScrollView
         contentContainerStyle={{ paddingBottom: insets.bottom + spacing.xxl }}
         showsVerticalScrollIndicator={false}
@@ -145,15 +146,15 @@ export default function WeatherDetailsScreen() {
         </LinearGradient>
 
         <View style={styles.sheet}>
-          <View style={styles.handle} />
+          <View style={[styles.handle, { backgroundColor: palette.border }]} />
 
           <AppText variant="heading" style={styles.sectionTitle}>
             Details
           </AppText>
 
-          <View style={styles.tableCard}>
+          <View style={[styles.tableCard, { backgroundColor: palette.card }]}>
             {rows.map((row, index) => (
-              <View key={row.title} style={[styles.row, index !== rows.length - 1 && styles.rowBorder]}>
+              <View key={row.title} style={[styles.row, index !== rows.length - 1 && [styles.rowBorder, { borderBottomColor: palette.border }]]}>
                 <View style={[styles.rowIcon, { backgroundColor: `${row.color}1F` }]}>
                   <Ionicons name={row.icon} size={17} color={row.color} />
                 </View>
@@ -172,7 +173,7 @@ export default function WeatherDetailsScreen() {
             ))}
           </View>
 
-          <View style={styles.chartCard}>
+          <View style={[styles.chartCard, { backgroundColor: palette.card }]}>
             <View style={styles.chartHeader}>
               <AppText variant="heading">Hourly forecast</AppText>
               <AppText variant="tiny" color={colors.textMuted}>
@@ -184,7 +185,7 @@ export default function WeatherDetailsScreen() {
             ) : null}
           </View>
 
-          <View style={styles.chartCard}>
+          <View style={[styles.chartCard, { backgroundColor: palette.card }]}>
             <AppText variant="heading">Sun schedule</AppText>
             <View style={styles.sunRow}>
               <SunFact label="Sunrise" value={current?.sunrise ?? "--:--"} icon="sunny-outline" />
