@@ -7,7 +7,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DailyRow } from "@/components/DailyRow";
 import { HourlyStrip } from "@/components/HourlyStrip";
 import { AppText, IconButton, SectionHeader } from "@/components/ui";
-import { AmbientGlow, WeatherHero } from "@/components/WeatherIcon";
+import { AmbientGlow, WeatherHero, WeatherIcon } from "@/components/WeatherIcon";
+import { skyGradient } from "@/constants/sky";
 import { colors, gradients, radius, shadow, spacing } from "@/constants/theme";
 import { formatTemperature } from "@/lib/format";
 import { useCities } from "@/providers/CitiesProvider";
@@ -35,9 +36,13 @@ export default function HomeScreen() {
   const maxTemperature = bundle?.daily.reduce((max, day) => Math.max(max, day.maxTemperature), 0) ?? 0;
   const minTemperature = bundle?.daily.reduce((min, day) => Math.min(min, day.minTemperature), 99) ?? 0;
 
+  // Match the hero to the current sky: rainy days get a muted rain palette,
+  // clear days keep the bright blue, and night uses a darker version.
+  const sky = current ? skyGradient(descriptor.kind, current.isDay) : gradients.hero;
+
   return (
     <View style={[styles.container, { backgroundColor: palette.background }]}>
-      <LinearGradient colors={gradients.hero} style={styles.hero}>
+      <LinearGradient colors={sky} style={styles.hero}>
         <View style={styles.glow} pointerEvents="none">
           <AmbientGlow size={260} opacity={0.16} />
         </View>
@@ -81,7 +86,11 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.heroIllustration}>
-            <WeatherHero size={128} isDay={current?.isDay ?? true} />
+            {current ? (
+              <WeatherIcon kind={descriptor.kind} size={128} isDay={current.isDay} />
+            ) : (
+              <WeatherHero size={128} />
+            )}
           </View>
         </View>
 

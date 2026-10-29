@@ -7,7 +7,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { TemperatureChart } from "@/components/TemperatureChart";
 import { AppText } from "@/components/ui";
-import { WeatherHero } from "@/components/WeatherIcon";
+import { WeatherHero, WeatherIcon } from "@/components/WeatherIcon";
+import { skyGradient } from "@/constants/sky";
 import { colors, gradients, radius, shadow, spacing } from "@/constants/theme";
 import {
   formatHourLabel,
@@ -40,6 +41,7 @@ export default function WeatherDetailsScreen() {
 
   const current = bundle?.current;
   const descriptor = describeWeather(current?.weatherCode);
+  const sky = current ? skyGradient(descriptor.kind, current.isDay) : gradients.hero;
 
   const chartPoints = useMemo(
     () =>
@@ -103,7 +105,7 @@ export default function WeatherDetailsScreen() {
         contentContainerStyle={{ paddingBottom: insets.bottom + spacing.xxl }}
         showsVerticalScrollIndicator={false}
       >
-        <LinearGradient colors={gradients.hero} style={styles.hero}>
+        <LinearGradient colors={sky} style={styles.hero}>
           <View style={[styles.topBar, { paddingTop: insets.top + spacing.sm }]}>
             <Pressable
               style={styles.locationButton}
@@ -141,7 +143,11 @@ export default function WeatherDetailsScreen() {
                 </AppText>
               ) : null}
             </View>
-            <WeatherHero size={116} isDay={current?.isDay ?? true} />
+            {current ? (
+              <WeatherIcon kind={descriptor.kind} size={116} isDay={current.isDay} />
+            ) : (
+              <WeatherHero size={116} />
+            )}
           </View>
         </LinearGradient>
 

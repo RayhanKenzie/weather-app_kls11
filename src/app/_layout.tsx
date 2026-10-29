@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { useAppFonts } from "@/hooks/useAppFonts";
+import { useLocationPermission } from "@/hooks/useLocationPermission";
 import { CitiesProvider } from "@/providers/CitiesProvider";
 import { SettingsProvider, useSettings } from "@/providers/SettingsProvider";
 import { WeatherProvider } from "@/providers/WeatherProvider";
@@ -41,6 +42,7 @@ export default function RootLayout() {
 
 function AppNavigator() {
   const { settings, colors: palette } = useSettings();
+  useLocationPermission();
 
   return (
     <>

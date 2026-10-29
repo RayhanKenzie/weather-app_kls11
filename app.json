@@ -33,7 +33,13 @@
           "imageWidth": 96
         }
       ],
-      "expo-image"
+      "expo-image",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Weatherly uses your location to show the weather where you are."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
