@@ -196,6 +196,10 @@ async function capture(page, name) {
   await clickLabel(page, "Search");
   await capture(page, "05-search");
 
+  await clickLabel(page, "Map");
+  await sleep(4000);
+  await capture(page, "09-map");
+
   await clickLabel(page, "Cities");
   await sleep(2500);
   await capture(page, "07-cities");

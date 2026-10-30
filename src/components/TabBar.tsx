@@ -13,6 +13,7 @@ const ICONS: Record<
 > = {
   home: { active: "home", inactive: "home-outline" },
   search: { active: "search", inactive: "search-outline" },
+  map: { active: "map", inactive: "map-outline" },
   cities: { active: "location", inactive: "location-outline" },
   settings: { active: "settings", inactive: "settings-outline" },
 };

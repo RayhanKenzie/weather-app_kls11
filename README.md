@@ -20,6 +20,7 @@ aplikasi tetap bisa didemokan ketika jaringan tidak tersedia.
 | 06 | Weather details | `/details` | UV index, kelembapan, angin, visibilitas, curah hujan, tekanan + grafik suhu |
 | 07 | My cities | `/(tabs)/cities` | Daftar kota tersimpan (maks. 8) dengan cuaca terkini |
 | 08 | Settings | `/(tabs)/settings` | Satuan °C/°F, notifikasi, bahasa, tampilan, tentang aplikasi |
+| 09 | Weather map | `/(tabs)/map` | Peta interaktif (geser & zoom) dengan lapisan suhu, hujan, awan, dan angin |
 
 ### Tanpa login
 
@@ -76,6 +77,7 @@ src/
 │       ├── _layout.tsx
 │       ├── home.tsx      # (02)
 │       ├── search.tsx    # (05)
+│       ├── map.tsx       # (09)
 │       ├── cities.tsx    # (07)
 │       └── settings.tsx  # (08)
 ├── components/           # komponen UI (ikon cuaca SVG, tab bar, chart, dll)
@@ -92,6 +94,8 @@ src/
 | Endpoint | Kegunaan |
 |----------|----------|
 | `https://api.open-meteo.com/v1/forecast` | Cuaca saat ini, per jam, dan 7 hari |
+| `https://api.open-meteo.com/v1/forecast` (banyak koordinat) | Grid cuaca untuk lapisan peta |
+| `https://{a-d}.basemaps.cartocdn.com/{light_all\|dark_all}/{z}/{x}/{y}@2x.png` | Basemap peta (CARTO + OpenStreetMap) |
 | `https://geocoding-api.open-meteo.com/v1/search` | Pencarian nama kota |
 
 Dokumentasi: [Open-Meteo](https://open-meteo.com/en/docs).
@@ -108,6 +112,8 @@ cuaca yang masuk akal dari koordinat kota sehingga seluruh halaman tetap tampil.
 - Warna aplikasi diambil dari aset desain di `assets/weatherly/` (lihat `src/constants/theme.ts`).
 - Icon aplikasi dibuat dari `scripts/assets/weatherly-mark.svg` melalui `npm run icons`.
 - State disimpan di **AsyncStorage**: daftar kota tersimpan dan pengaturan pengguna.
+- Peta cuaca memakai tile **CARTO** di atas data **OpenStreetMap**, jadi atribusi
+  “© OpenStreetMap contributors © CARTO” harus tetap terlihat di layar peta.
 
 ---
 
