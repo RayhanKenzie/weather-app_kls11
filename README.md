@@ -95,7 +95,7 @@ src/
 |----------|----------|
 | `https://api.open-meteo.com/v1/forecast` | Cuaca saat ini, per jam, dan 7 hari |
 | `https://api.open-meteo.com/v1/forecast` (banyak koordinat) | Grid cuaca untuk lapisan peta |
-| `https://{a-d}.basemaps.cartocdn.com/{light_all\|dark_all}/{z}/{x}/{y}@2x.png` | Basemap peta (CARTO + OpenStreetMap) |
+| `https://tile.openstreetmap.org/{z}/{x}/{y}.png` | Basemap peta (OpenStreetMap) |
 | `https://geocoding-api.open-meteo.com/v1/search` | Pencarian nama kota |
 
 Dokumentasi: [Open-Meteo](https://open-meteo.com/en/docs).
@@ -112,8 +112,10 @@ cuaca yang masuk akal dari koordinat kota sehingga seluruh halaman tetap tampil.
 - Warna aplikasi diambil dari aset desain di `assets/weatherly/` (lihat `src/constants/theme.ts`).
 - Icon aplikasi dibuat dari `scripts/assets/weatherly-mark.svg` melalui `npm run icons`.
 - State disimpan di **AsyncStorage**: daftar kota tersimpan dan pengaturan pengguna.
-- Peta cuaca memakai tile **CARTO** di atas data **OpenStreetMap**, jadi atribusi
-  “© OpenStreetMap contributors © CARTO” harus tetap terlihat di layar peta.
+- Peta cuaca memakai tile resmi **OpenStreetMap** (`tile.openstreetmap.org`), jadi atribusi
+  “© OpenStreetMap contributors” harus tetap terlihat di layar peta. Tile ini gratis untuk
+  pemakaian wajar (bukan unduhan massal), sesuai
+  [kebijakan tile OSM](https://operations.osmfoundation.org/policies/tiles/).
 
 ---
 

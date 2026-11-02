@@ -413,7 +413,7 @@ export default function WeatherMapScreen() {
       >
         <View style={[styles.attributionPill, { backgroundColor: palette.card }]}>
           <AppText variant="tiny" color={palette.textMuted}>
-            © OpenStreetMap contributors © CARTO
+            © OpenStreetMap contributors
           </AppText>
         </View>
       </View>

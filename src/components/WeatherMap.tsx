@@ -117,10 +117,7 @@ export const WeatherMap = memo(function WeatherMap({
     [translation]
   );
 
-  const tiles = useMemo(
-    () => tilesForView(view, size, settings.appearance === "dark" ? "dark" : "light"),
-    [settings.appearance, size, view]
-  );
+  const tiles = useMemo(() => tilesForView(view, size), [size, view]);
 
   const overlay = useMemo(() => {
     if (points.length === 0 || size.width === 0 || size.height === 0) return null;
@@ -203,6 +200,10 @@ export const WeatherMap = memo(function WeatherMap({
             style={[styles.tile, { left: tile.left, top: tile.top }]}
           />
         ))}
+
+        {settings.appearance === "dark" ? (
+          <View style={styles.darkScrim} pointerEvents="none" />
+        ) : null}
 
         <Svg
           width={size.width}
@@ -340,6 +341,14 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: TILE_SIZE + 0.5,
     height: TILE_SIZE + 0.5,
+  },
+  darkScrim: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: "rgba(9, 15, 26, 0.56)",
   },
   markerWrap: {
     position: "absolute",

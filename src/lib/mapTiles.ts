@@ -127,12 +127,15 @@ export function panCenter(view: MapViewState, size: MapSize, dx: number, dy: num
 /**
  * Raster tiles that cover the viewport, with one tile of padding on each side
  * so a drag does not reveal an empty strip before the view state commits.
+ *
+ * Tiles come straight from the OpenStreetMap standard tile server. The usage
+ * policy (https://operations.osmfoundation.org/policies/tiles/) asks for the
+ * attribution to stay visible and for low-volume, non-bulk use — fine for this
+ * app. Swap `TILE_URL` here if the project ever needs another provider.
  */
-export function tilesForView(
-  view: MapViewState,
-  size: MapSize,
-  style: "light" | "dark"
-): MapTile[] {
+export const TILE_URL = "https://tile.openstreetmap.org";
+
+export function tilesForView(view: MapViewState, size: MapSize): MapTile[] {
   const count = 2 ** view.zoom;
   const center = projectToWorld(view, view.zoom);
   const left = center.x - size.width / 2;
@@ -143,18 +146,15 @@ export function tilesForView(
   const minY = Math.max(0, Math.floor(top / TILE_SIZE) - 1);
   const maxY = Math.min(count - 1, Math.floor((top + size.height) / TILE_SIZE) + 1);
 
-  const basemap = style === "dark" ? "dark_all" : "light_all";
-  const subdomains = ["a", "b", "c", "d"];
   const tiles: MapTile[] = [];
 
   for (let x = minX; x <= maxX; x += 1) {
     // Longitude wraps around the globe, latitude stops at the poles.
     const tileX = ((x % count) + count) % count;
     for (let y = minY; y <= maxY; y += 1) {
-      const subdomain = subdomains[(tileX + y) % subdomains.length];
       tiles.push({
         key: `${view.zoom}/${tileX}/${y}`,
-        uri: `https://${subdomain}.basemaps.cartocdn.com/${basemap}/${view.zoom}/${tileX}/${y}@2x.png`,
+        uri: `${TILE_URL}/${view.zoom}/${tileX}/${y}.png`,
         left: x * TILE_SIZE - left,
         top: y * TILE_SIZE - top,
       });

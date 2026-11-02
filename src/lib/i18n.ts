@@ -23,7 +23,7 @@ const INDONESIAN: Record<string, string> = {
   "Map data is unavailable offline": "Data peta tidak tersedia saat offline",
   "Loading map data…": "Memuat data peta…",
   "Arrows show the wind direction, colour shows its speed": "Panah menunjukkan arah angin, warna menunjukkan kecepatannya",
-  "© OpenStreetMap contributors © CARTO": "© OpenStreetMap contributors © CARTO",
+  "© OpenStreetMap contributors": "© OpenStreetMap contributors",
   "My cities": "Kota saya",
   "Search city": "Cari kota",
   "Temperature unit": "Satuan suhu",
