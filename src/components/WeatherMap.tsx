@@ -1,8 +1,9 @@
 import { Image } from "expo-image";
-import { memo, useId, useLayoutEffect, useMemo, useRef } from "react";
+import { memo, useEffect, useId, useLayoutEffect, useMemo, useRef } from "react";
 import {
   Animated,
   PanResponder,
+  Platform,
   Pressable,
   StyleSheet,
   View,
@@ -10,6 +11,7 @@ import {
 } from "react-native";
 import Svg, { Circle, Defs, G, Line, Path, RadialGradient, Stop } from "react-native-svg";
 
+import { RainStreaks, WindParticles, type FlowCell } from "@/components/MapParticles";
 import { AppText } from "@/components/ui";
 import { colors, radius, shadow, spacing } from "@/constants/theme";
 import { formatTemperature } from "@/lib/format";
@@ -63,11 +65,42 @@ export const WeatherMap = memo(function WeatherMap({
   const { settings, colors: palette } = useSettings();
   const unit = settings.temperatureUnit;
   const gradientId = `wmap-${useId().replace(/:/g, "")}`;
+  const particleColor =
+    settings.appearance === "dark" ? "rgba(255, 255, 255, 0.92)" : "rgba(31, 111, 203, 0.62)";
+  const rainColor =
+    settings.appearance === "dark" ? "rgba(196, 226, 255, 0.95)" : "rgba(47, 138, 229, 0.6)";
 
   const translation = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+  const cloudPhase = useRef(new Animated.Value(0)).current;
+  const rainPhase = useRef(new Animated.Value(0)).current;
+  const temperaturePhase = useRef(new Animated.Value(0)).current;
+  const windPhase = useRef(new Animated.Value(0)).current;
   const viewRef = useRef(view);
   const sizeRef = useRef(size);
   const onViewChangeRef = useRef(onViewChange);
+
+  // Slow ambient loops make the layer feel alive without new weather data.
+  // Transform/opacity only, so the native driver can run them off the JS thread.
+  useEffect(() => {
+    const useNativeDriver = Platform.OS !== "web";
+    const pingPong = (value: Animated.Value, duration: number) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(value, { toValue: 1, duration, useNativeDriver }),
+          Animated.timing(value, { toValue: 0, duration, useNativeDriver }),
+        ])
+      );
+
+    const loops = [
+      pingPong(cloudPhase, 16000),
+      pingPong(rainPhase, 4500),
+      pingPong(temperaturePhase, 5200),
+      pingPong(windPhase, 4500),
+    ];
+    loops.forEach((loop) => loop.start());
+
+    return () => loops.forEach((loop) => loop.stop());
+  }, [cloudPhase, rainPhase, temperaturePhase, windPhase]);
 
   useLayoutEffect(() => {
     viewRef.current = view;
@@ -176,6 +209,112 @@ export const WeatherMap = memo(function WeatherMap({
           opacity: layerOpacity(layer, entry.point),
         })).filter((entry) => entry.opacity > 0);
 
+  // Screen-space wind cells drive both the arrows and the particle streams.
+  const flowCells = useMemo<FlowCell[]>(
+    () =>
+      (overlay?.visible ?? []).map(({ x, y, point }) => {
+        const bearing = ((point.windDirection + 180) * Math.PI) / 180;
+        return {
+          x,
+          y,
+          dx: Math.sin(bearing),
+          dy: -Math.cos(bearing),
+          speed: point.windSpeed,
+          rain: point.precipitation,
+        };
+      }),
+    [overlay]
+  );
+
+  // Prevailing direction the wind arrows point to, used to drift the whole
+  // arrow field a few pixels so the layer visibly flows.
+  const windVector = useMemo(() => {
+    let x = 0;
+    let y = 0;
+    for (const cell of flowCells) {
+      x += cell.dx;
+      y += cell.dy;
+    }
+    const length = Math.hypot(x, y);
+    if (length < 0.0001) return { x: 1, y: 0 };
+    return { x: x / length, y: y / length };
+  }, [flowCells]);
+
+  const layerAnimation = useMemo(() => {
+    const temperatureOpacity = temperaturePhase.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.86, 1],
+    });
+    const rainOpacity = rainPhase.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.9, 1],
+    });
+    const windOpacity = windPhase.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.72, 1],
+    });
+
+    switch (layer) {
+      case "temperature":
+        return { opacity: temperatureOpacity };
+      case "clouds":
+        return {
+          transform: [
+            {
+              translateX: cloudPhase.interpolate({
+                inputRange: [0, 1],
+                outputRange: [-22, 22],
+              }),
+            },
+          ],
+        };
+      case "rain":
+        return {
+          opacity: rainOpacity,
+          transform: [
+            {
+              translateY: rainPhase.interpolate({
+                inputRange: [0, 1],
+                outputRange: [-8, 22],
+              }),
+            },
+            {
+              translateX: rainPhase.interpolate({
+                inputRange: [0, 1],
+                outputRange: [4, -6],
+              }),
+            },
+          ],
+        };
+      default:
+        return {
+          opacity: windOpacity,
+          transform: [
+            {
+              translateX: windPhase.interpolate({
+                inputRange: [0, 1],
+                outputRange: [-windVector.x * 9, windVector.x * 9],
+              }),
+            },
+            {
+              translateY: windPhase.interpolate({
+                inputRange: [0, 1],
+                outputRange: [-windVector.y * 9, windVector.y * 9],
+              }),
+            },
+          ],
+        };
+    }
+  }, [
+    cloudPhase,
+    layer,
+    rainPhase,
+    temperaturePhase,
+    windPhase,
+    windVector.x,
+    windVector.y,
+  ]);
+
   const handleLayout = (event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
     if (Math.abs(width - size.width) > 0.5 || Math.abs(height - size.height) > 0.5) {
@@ -205,12 +344,16 @@ export const WeatherMap = memo(function WeatherMap({
           <View style={styles.darkScrim} pointerEvents="none" />
         ) : null}
 
-        <Svg
-          width={size.width}
-          height={size.height}
-          style={StyleSheet.absoluteFill}
+        <Animated.View
           pointerEvents="none"
+          style={[StyleSheet.absoluteFill, layerAnimation]}
         >
+          <Svg
+            width={size.width}
+            height={size.height}
+            style={StyleSheet.absoluteFill}
+            pointerEvents="none"
+          >
           {shaped.length > 0 ? (
             <Defs>
               {shaped.map((entry, index) => (
@@ -227,10 +370,10 @@ export const WeatherMap = memo(function WeatherMap({
             ? (overlay?.visible ?? []).map((entry, index) => {
                 const length = 12 + Math.min(24, entry.point.windSpeed * 0.55);
                 const color = layerColor("wind", entry.point);
-                const transform = `translate(${entry.x} ${entry.y}) rotate(${entry.point.windDirection + 180})`;
+                const transform = `translate(${entry.x} ${entry.y}) rotate(${entry.point.windDirection + 90})`;
                 const arrow = `M ${length / 2} 0 L ${length / 2 - 6} -4 M ${length / 2} 0 L ${length / 2 - 6} 4`;
                 return (
-                  <G key={`wind-${index}`} transform={transform} opacity={0.95}>
+                  <G key={`wind-${index}`} transform={transform} opacity={0.82}>
                     <Line
                       x1={-length / 2}
                       y1={0}
@@ -275,7 +418,15 @@ export const WeatherMap = memo(function WeatherMap({
                   fill={`url(#${gradientId}-${index})`}
                 />
               ))}
-        </Svg>
+          </Svg>
+        </Animated.View>
+
+        {layer === "wind" ? (
+          <WindParticles cells={flowCells} size={size} color={particleColor} />
+        ) : null}
+        {layer === "rain" ? (
+          <RainStreaks cells={flowCells} size={size} color={rainColor} />
+        ) : null}
 
         {markers.map(({ city, current, position }) => {
           const active = city.id === selectedCityId;

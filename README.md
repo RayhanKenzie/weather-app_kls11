@@ -116,6 +116,12 @@ cuaca yang masuk akal dari koordinat kota sehingga seluruh halaman tetap tampil.
   “© OpenStreetMap contributors” harus tetap terlihat di layar peta. Tile ini gratis untuk
   pemakaian wajar (bukan unduhan massal), sesuai
   [kebijakan tile OSM](https://operations.osmfoundation.org/policies/tiles/).
+- Lapisan peta dianimasikan ala Windy memakai `Animated` bawaan React Native: awan bergeser,
+  sel hujan bergerak turun, panah angin mengalir searah angin, dan lapisan suhu berdenyut.
+- Lapisan angin menampilkan partikel garis yang mengalir mengikuti vektor angin tiap titik
+  sampel; lapisan hujan menampilkan garis hujan yang jatuh hanya di area yang memang hujan
+  (`src/components/MapParticles.tsx`). Semuanya hanya `transform`/`opacity` supaya native
+  driver iOS/Android bisa dipakai, dengan fallback JS di web.
 
 ---
 
